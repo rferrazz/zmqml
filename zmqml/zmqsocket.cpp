@@ -81,13 +81,22 @@ void ZMQSocket::setMethod(const ZMQSocket::ConnectionMethod method)
 
 void ZMQSocket::setAddresses(const QVariantList &addresses)
 {
-    if (_addr.length() > 0)
-        return;
+    if (_addr.length() > 0 && socket) {
+        int (*fun)(void *, const char*) = _method == Connect ? zmq_disconnect : zmq_unbind;
+
+        foreach (const QVariant &a, _addr){
+            int rc = fun(socket, qPrintable(a.toUrl().toString()));
+
+            if (rc < 0)
+                qDebug() << "Disconnection error";
+        }
+    }
 
     _addr = addresses;
     emit addressesChanged();
 
-    setup();
+    if (!socket)
+        setup();
 }
 
 void ZMQSocket::setSubscription(const QByteArray &sub)
@@ -196,27 +205,22 @@ void ZMQSocket::setup()
                 size_t size = sizeof(quint8);
                 zmq_getsockopt(socket, ZMQ_RCVMORE, (void *)&more, &size);
             }
-            emit messageReceived(message);
+
+            if (message.length() > 0)
+                emit messageReceived(message);
+
             notifier->setEnabled(true);
         }
     );
 
-    if (_method == Connect) {
-        int result;
-        foreach(const QVariant &addr, _addr){
-            result = zmq_connect(socket, qPrintable(addr.toUrl().toString()));
-            qDebug() << "Connecting" << addr.toUrl();
-            if (result == -1){
-                qWarning() << "Connection error" << addr.toUrl().toString();
-            }
-        }
-    } else {
-        int result;
-        foreach(const QVariant &addr, _addr){
-            result = zmq_bind(socket, qPrintable(addr.toUrl().toString()));
-            if (result == -1){
-                qWarning() << "Bind error" << addr.toUrl().toString();
-            }
+    int (*fun)(void *, const char*) = _method == Connect ? zmq_connect : zmq_bind;
+    int result;
+
+    foreach(const QVariant &addr, _addr){
+        result = fun(socket, qPrintable(addr.toUrl().toString()));
+
+        if (result == -1){
+            qWarning() << "Connection error" << addr.toUrl().toString();
         }
     }
 
