@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 SUBDIRS = zmqml \
-    examples/example1
+    examples/pubsub
