@@ -26,7 +26,7 @@ ZMQContext *ZMQContext::instance()
     static QMutex mutex;
 
     mutex.lock();
-    if (!_instance){
+    if (!_instance) {
         _instance = new ZMQContext;
     }
     mutex.unlock();
