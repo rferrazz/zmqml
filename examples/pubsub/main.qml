@@ -22,19 +22,20 @@ Window {
         method: ZMQSocket.Connect
 
         onMessageReceived: {
-            console.log(message)
+            text.text = message;
         }
     }
 
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            sender.sendMessage("ciao");
+            sender.sendMessage("Hello world from zmq pubsub");
         }
     }
 
     Text {
-        text: qsTr("Hello World")
+        id: text
+        text: qsTr("Click to send the zmq message")
         anchors.centerIn: parent
     }
 }
