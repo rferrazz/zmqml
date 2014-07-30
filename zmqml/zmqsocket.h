@@ -66,7 +66,7 @@ signals:
     void addressesChanged();
     void subscriptionChanged();
 
-    void messageReceived(const QList<QByteArray> &message);
+    void messageReceived(const QStringList &message);
 
 public slots:
     void sendMessage(const QString &message);

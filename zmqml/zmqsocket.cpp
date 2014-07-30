@@ -175,7 +175,7 @@ void ZMQSocket::setup()
             notifier->setEnabled(false);
 
             qint8 more = 1;
-            QList<QByteArray> message;
+            QStringList message;
 
             while(more == 1){
                 int event;
@@ -197,7 +197,7 @@ void ZMQSocket::setup()
                 if (res < 0)
                     continue;
 
-                message << QByteArray((char *) zmq_msg_data(&part), zmq_msg_size(&part));
+                message << QString::fromLocal8Bit((char *) zmq_msg_data(&part), zmq_msg_size(&part));
                 qDebug() << message;
 
                 zmq_msg_close(&part);
