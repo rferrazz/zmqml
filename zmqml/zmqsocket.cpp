@@ -139,20 +139,10 @@ void ZMQSocket::sendMessage(const QList<QString> &message)
 {
     QList<QString>::const_iterator i;
     for (i = message.constBegin(); i != message.constEnd(); ++i) {
-        int flags = (++i) == message.constEnd() ? 0 : ZMQ_SNDMORE;
-        zmq_msg_t part;
+        int flags = (i+1) == message.constEnd() ? 0 : ZMQ_SNDMORE;
+        const QByteArray &msg = (*i).toLocal8Bit();
 
-        const int rc = zmq_msg_init_size(&part, (*i).size());
-        if (rc != 0) {
-            qWarning() << "Message initialization error";
-            return;
-        }
-
-        memcpy(zmq_msg_data(&part), qPrintable(*i), (*i).size());
-
-        zmq_sendmsg(socket, &part, flags);
-
-        zmq_msg_close(&part);
+        zmq_send(socket, msg.constData(), msg.size(), flags);
     }
 }
 
