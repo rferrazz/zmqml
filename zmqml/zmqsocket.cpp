@@ -189,7 +189,7 @@ void ZMQSocket::setup()
                 int rc = zmq_msg_init(&part);
                 if (rc < 0) {
                     qDebug() << "Error initializing message";
-                    return;
+                    break;
                 }
 
                 const int res = zmq_msg_recv(&part, socket, ZMQ_NOBLOCK);
