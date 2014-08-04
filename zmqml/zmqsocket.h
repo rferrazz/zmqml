@@ -24,7 +24,7 @@ class ZMQSocket : public QObject
 {
     Q_OBJECT
 
-    Q_ENUMS(ConnectionMethod SocketType)
+    Q_ENUMS(ConnectionMethod SocketType SockOption)
     Q_PROPERTY(SocketType type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QByteArray identity READ identity WRITE setIdentity NOTIFY identityChanged)
     Q_PROPERTY(ConnectionMethod method READ method WRITE setMethod NOTIFY methodChanged)
@@ -53,6 +53,33 @@ public:
         Null
     };
 
+    enum SockOption {
+        SndHwm = ZMQ_SNDHWM,
+        RcvHwm = ZMQ_RCVHWM,
+        Rate = ZMQ_RATE,
+        SndBuf = ZMQ_SNDBUF,
+        RcvBuf = ZMQ_RCVBUF,
+        Linger = ZMQ_LINGER,
+        RecoveryIvl = ZMQ_RECOVERY_IVL,
+        ReconnectIvl = ZMQ_RECONNECT_IVL,
+        ReconnectIvlMax = ZMQ_RECONNECT_IVL_MAX,
+        Backlog = ZMQ_BACKLOG,
+        MulticastHops = ZMQ_MULTICAST_HOPS,
+        IPV6 = ZMQ_IPV6,
+        IPV4Only = ZMQ_IPV4ONLY,
+        Immediate = ZMQ_IMMEDIATE,
+        RouterMandatory = ZMQ_ROUTER_MANDATORY,
+        RouterRaw = ZMQ_ROUTER_RAW,
+        ProbeRouter = ZMQ_PROBE_ROUTER,
+        XPubVerbose = ZMQ_XPUB_VERBOSE,
+        ReqCorrelate = ZMQ_REQ_CORRELATE,
+        ReqRelaxed = ZMQ_REQ_RELAXED,
+        TcpKeepalive = ZMQ_TCP_KEEPALIVE,
+        TcpKeepaliveCnt = ZMQ_TCP_KEEPALIVE_CNT,
+        TcpKeepaliveIdle = ZMQ_TCP_KEEPALIVE_IDLE,
+        TcpKeepaliveIntvl = ZMQ_TCP_KEEPALIVE_INTVL
+    };
+
     explicit ZMQSocket(QObject *parent = 0);
     ~ZMQSocket();
 
@@ -68,6 +95,7 @@ public:
     void setAddresses(const QVariantList &addresses);
     void setSubscription(const QByteArray &sub);
 
+    Q_INVOKABLE bool setSockOption(SockOption option, int value);
 
 signals:
     void typeChanged();

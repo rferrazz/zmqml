@@ -123,6 +123,18 @@ void ZMQSocket::setSubscription(const QByteArray &sub)
     emit subscriptionChanged();
 }
 
+bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, int value)
+{
+    if (!socket) {
+        qWarning() << "Error, socket not ready";
+        return false;
+    }
+
+    const int rc = zmq_setsockopt(socket, int(option), (void*) &value, size_t(sizeof(int)));
+
+    return rc >= 0;
+}
+
 void ZMQSocket::sendMessage(const QString &message)
 {
     const QByteArray &msg = message.toLocal8Bit();
