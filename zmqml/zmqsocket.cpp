@@ -15,6 +15,10 @@
 #include <QSocketNotifier>
 #include <QUuid>
 
+inline void zmqError(const QString &message) {
+    qWarning() << message << zmq_strerror(zmq_errno());
+}
+
 ZMQSocket::ZMQSocket(QObject *parent) :
     QObject(parent),
     _type(Null),
@@ -98,7 +102,7 @@ void ZMQSocket::setAddresses(const QVariantList &addresses)
             int rc = fun(socket, qPrintable(a.toUrl().toString()));
 
             if (rc < 0)
-                qDebug() << "Disconnection error";
+                zmqError("Disconnection error:");
         }
     }
 
@@ -140,11 +144,11 @@ void ZMQSocket::sendMessage(const QString &message)
     const QByteArray &msg = message.toLocal8Bit();
 
     const int res = zmq_send(socket, msg.constData(), msg.size(), 0);
-    if (res == -1){
-        qWarning() << "Error sending message";
+
+    if (res == -1) {
+        zmqError("Error sending message:");
         return;
     }
-    qDebug() << "Message sent" << msg;
 }
 
 void ZMQSocket::sendMessage(const QList<QString> &message)
@@ -154,7 +158,12 @@ void ZMQSocket::sendMessage(const QList<QString> &message)
         int flags = (i+1) == message.constEnd() ? 0 : ZMQ_SNDMORE;
         const QByteArray &msg = (*i).toLocal8Bit();
 
-        zmq_send(socket, msg.constData(), msg.size(), flags);
+        const int res = zmq_send(socket, msg.constData(), msg.size(), flags);
+
+        if (res == -1) {
+            zmqError("Error sending message:");
+            return;
+        }
     }
 }
 
@@ -166,15 +175,12 @@ void ZMQSocket::setup()
     socket = zmq_socket(ZMQContext::instance()->context, int(_type));
 
     if (!socket) {
-        qWarning() << "Socket creation error";
+        zmqError("Socket creation error:");
         return;
     }
 
-    qDebug() << "Socket created";
 
     zmq_setsockopt(socket, ZMQ_IDENTITY, (void *) _identity.data(), _identity.size());
-
-    qDebug() << "Identity setted";
 
     qint32 fd;
     size_t size = sizeof(fd);
@@ -200,7 +206,7 @@ void ZMQSocket::setup()
                 zmq_msg_t part;
                 int rc = zmq_msg_init(&part);
                 if (rc < 0) {
-                    qDebug() << "Error initializing message";
+                    zmqError("Error initializing message:");
                     break;
                 }
 
@@ -230,14 +236,11 @@ void ZMQSocket::setup()
     foreach(const QVariant &addr, _addr) {
         result = fun(socket, qPrintable(addr.toUrl().toString()));
 
-        if (result == -1) {
-            qWarning() << "Connection error" << addr.toUrl().toString();
-        }
+        if (result == -1)
+            zmqError("Connection error:");
     }
 
     if (_type == Sub) {
         zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) _subscription.data(), _subscription.size());
     }
-
-    qDebug() << "Connected!";
 }
