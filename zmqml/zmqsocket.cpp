@@ -33,6 +33,11 @@ ZMQSocket::~ZMQSocket()
         zmq_close(socket);
 }
 
+bool ZMQSocket::ready() const
+{
+    return bool(socket);
+}
+
 ZMQSocket::SocketType ZMQSocket::type() const
 {
     return _type;
@@ -191,6 +196,7 @@ void ZMQSocket::setup()
         return;
     }
 
+    emit readyChanged();
 
     zmq_setsockopt(socket, ZMQ_IDENTITY, (void *) _identity.data(), _identity.size());
 

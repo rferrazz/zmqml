@@ -25,6 +25,7 @@ class ZMQSocket : public QObject
     Q_OBJECT
 
     Q_ENUMS(ConnectionMethod SocketType SockOption)
+    Q_PROPERTY(bool ready READ ready NOTIFY readyChanged)
     Q_PROPERTY(SocketType type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QByteArray identity READ identity WRITE setIdentity NOTIFY identityChanged)
     Q_PROPERTY(ConnectionMethod method READ method WRITE setMethod NOTIFY methodChanged)
@@ -83,6 +84,7 @@ public:
     explicit ZMQSocket(QObject *parent = 0);
     ~ZMQSocket();
 
+    bool ready() const;
     SocketType type() const;
     QByteArray identity() const;
     ConnectionMethod method() const;
@@ -98,6 +100,7 @@ public:
     Q_INVOKABLE bool setSockOption(SockOption option, int value);
 
 signals:
+    void readyChanged();
     void typeChanged();
     void identityChanged();
     void methodChanged();
