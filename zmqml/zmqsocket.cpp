@@ -96,14 +96,26 @@ void ZMQSocket::setMethod(const ZMQSocket::ConnectionMethod method)
 void ZMQSocket::setAddresses(const QVariantList &addresses)
 {
     if (_addr.length() > 0 && socket) {
-        int (*fun)(void *, const char*) = _method == Connect ? zmq_disconnect : zmq_unbind;
+        int (*dfun)(void *, const char*) = _method == Connect ? zmq_disconnect : zmq_unbind;
 
         foreach (const QVariant &a, _addr) {
-            int rc = fun(socket, qPrintable(a.toUrl().toString()));
+            int rc = dfun(socket, qPrintable(a.toUrl().toString()));
 
             if (rc < 0)
                 zmqError("Disconnection error:");
         }
+
+
+        int (*cfun)(void *, const char*) = _method == Connect ? zmq_connect : zmq_bind;
+        int result;
+
+        foreach(const QVariant &addr, addresses) {
+            result = cfun(socket, qPrintable(addr.toUrl().toString()));
+
+            if (result == -1)
+                zmqError("Connection error:");
+        }
+
     }
 
     _addr = addresses;
