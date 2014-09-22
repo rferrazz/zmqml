@@ -3,66 +3,83 @@
 #include <QTest>
 #include <QSignalSpy>
 
+Q_DECLARE_METATYPE(ZMQSocket::SocketType)
+
 class TestSocket : public QObject
 {
     Q_OBJECT
 private slots:
-    void testPubSub_data();
-    void testPubSub();
+    void testSocket_data();
+    void testSocket();
 
 };
 
-
-void TestSocket::testPubSub_data()
+void TestSocket::testSocket_data()
 {
-    QTest::addColumn< QVariantList >("pub_addresses");
-    QTest::addColumn< QVariantList >("sub_addresses");
+    QTest::addColumn<ZMQSocket::SocketType>("first_type");
+    QTest::addColumn< QVariantList >("first_addr");
+
+    QTest::addColumn<ZMQSocket::SocketType>("second_type");
+    QTest::addColumn< QVariantList >("second_addr");
 
     QTest::addColumn<QByteArray> ("subscription");
 
     QTest::addColumn< QStringList >("message");
 
-    QTest::newRow("simple message") << (QVariantList() << QUrl("inproc://1"))
-                                           << (QVariantList() << QUrl("inproc://1"))
+    QTest::newRow("pub/sub short") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://1"))
+                                           << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://1"))
                                            << QByteArray("")
                                            << (QStringList() << "Hello World");
 
-    QTest::newRow("long message") << (QVariantList() << QUrl("inproc://2"))
-                                      << (QVariantList() << QUrl("inproc://2"))
-                                      << QByteArray("hello")
-                                      << (QStringList() << "hello" << "world" << "!");
+    QTest::newRow("pub/sub multipart") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://2"))
+                                          << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://2"))
+                                          << QByteArray("hello")
+                                          << (QStringList() << "hello" << "world" << "!");
+
+    QTest::newRow("req/rep short") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
+                                   << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
+                                   << QByteArray("")
+                                   << (QStringList() << "hello world");
+
+    QTest::newRow("req/rep multipart") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
+                                   << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
+                                   << QByteArray("")
+                                   << (QStringList() << "hello" << "world");
 }
 
-void TestSocket::testPubSub()
+void TestSocket::testSocket()
 {
-    QFETCH(QVariantList, pub_addresses);
-    QFETCH(QVariantList, sub_addresses);
+    QFETCH(ZMQSocket::SocketType, first_type);
+    QFETCH(QVariantList, first_addr);
+
+    QFETCH(ZMQSocket::SocketType, second_type);
+    QFETCH(QVariantList, second_addr);
     QFETCH(QByteArray, subscription);
     QFETCH(QStringList, message);
 
-    ZMQSocket sub;
-    ZMQSocket pub;
+    ZMQSocket first;
+    ZMQSocket second;
 
-    QSignalSpy subReady(&sub, SIGNAL(readyChanged()));
-    QSignalSpy pubReady(&pub, SIGNAL(readyChanged()));
+    QSignalSpy firstReady(&first, SIGNAL(readyChanged()));
+    QSignalSpy secondReady(&second, SIGNAL(readyChanged()));
 
 
-    sub.setType(ZMQSocket::Sub);
-    sub.setAddresses(sub_addresses);
-    sub.setMethod(ZMQSocket::Connect);
-    sub.setSubscription(subscription);
+    second.setType(second_type);
+    second.setAddresses(second_addr);
+    second.setMethod(ZMQSocket::Connect);
+    second.setSubscription(subscription);
 
-    QCOMPARE(subReady.count(), 1);
+    QCOMPARE(secondReady.count(), 1);
 
-    pub.setType(ZMQSocket::Pub);
-    pub.setAddresses(pub_addresses);
-    pub.setMethod(ZMQSocket::Bind);
+    first.setType(first_type);
+    first.setAddresses(first_addr);
+    first.setMethod(ZMQSocket::Bind);
 
-    QCOMPARE(pubReady.count(), 1);
+    QCOMPARE(firstReady.count(), 1);
 
-    QSignalSpy spy(&sub, SIGNAL(messageReceived(QStringList)));
+    QSignalSpy spy(&second, SIGNAL(messageReceived(QStringList)));
 
-    pub.sendMessage(message);
+    first.sendMessage(message);
 
     QTest::qWait(100);
 
