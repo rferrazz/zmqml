@@ -10,6 +10,7 @@
 
 #include "zmqml_plugin.h"
 #include "zmqsocket.h"
+#include "zmqrpcsocket.h"
 
 #include <qqml.h>
 
@@ -17,6 +18,7 @@ void ZmqmlPlugin::registerTypes(const char *uri)
 {
     // @uri zmq.Components
     qmlRegisterType<ZMQSocket>(uri, 1, 0, "ZMQSocket");
+    qmlRegisterType<ZMQRPCSocket>(uri, 1, 0, "ZMQRPCSocket");
 }
 
 

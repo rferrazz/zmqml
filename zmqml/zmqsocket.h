@@ -113,6 +113,9 @@ public slots:
     void sendMessage(const QString &message);
     void sendMessage(const QList<QString> &message);
 
+protected:
+    void sendMessage(const QList<QByteArray> &message);
+
 private:
     void setup();
 

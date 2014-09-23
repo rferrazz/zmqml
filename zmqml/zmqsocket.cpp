@@ -170,12 +170,22 @@ void ZMQSocket::sendMessage(const QString &message)
 
 void ZMQSocket::sendMessage(const QList<QString> &message)
 {
-    QList<QString>::const_iterator i;
+    QList<QByteArray> result;
+    QStringList::const_iterator i;
+    for (i = message.constBegin(); i != message.constEnd(); ++i){
+        result << (*i).toLocal8Bit();
+    }
+
+    sendMessage(result);
+}
+
+void ZMQSocket::sendMessage(const QList<QByteArray> &message)
+{
+    QList<QByteArray>::const_iterator i;
     for (i = message.constBegin(); i != message.constEnd(); ++i) {
         int flags = (i+1) == message.constEnd() ? 0 : ZMQ_SNDMORE;
-        const QByteArray &msg = (*i).toLocal8Bit();
 
-        const int res = zmq_send(socket, msg.constData(), msg.size(), flags);
+        const int res = zmq_send(socket, (*i).constData(), (*i).size(), flags);
 
         if (res == -1) {
             zmqError("Error sending message:");

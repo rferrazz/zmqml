@@ -12,13 +12,17 @@ LIBS += -lzmq
 SOURCES += \
     zmqml_plugin.cpp \
     zmqcontext.cpp \
-    zmqsocket.cpp
+    zmqsocket.cpp \
+    remotemethod.cpp \
+    zmqrpcsocket.cpp
 
 HEADERS += \
     zmq.h \
     zmqml_plugin.h \
     zmqcontext.h \
-    zmqsocket.h
+    zmqsocket.h \
+    remotemethod.h \
+    zmqrpcsocket.h
 
 OTHER_FILES = qmldir
 
