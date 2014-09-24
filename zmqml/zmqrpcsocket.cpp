@@ -24,7 +24,7 @@ ZMQRPCSocket::ZMQRPCSocket(QObject *parent) :
         QList<QGenericArgument> args;
         QList<QVariant>::const_iterator i;
         for (i = method.args.constBegin(); i != method.args.constEnd(); ++i){
-            args << QGenericArgument("QVariant", (*i).data());
+            args << Q_ARG(QVariant, (*i).data());
         }
 
         static bool exists = QMetaObject::invokeMethod(this,
