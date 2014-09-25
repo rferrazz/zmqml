@@ -107,13 +107,10 @@ signals:
     void addressesChanged();
     void subscriptionChanged();
 
-    void messageReceived(const QStringList &message);
+    void messageReceived(const QList<QByteArray> &message);
 
 public slots:
-    void sendMessage(const QString &message);
-    void sendMessage(const QList<QString> &message);
-
-protected:
+    void sendMessage(const QByteArray &message);
     void sendMessage(const QList<QByteArray> &message);
 
 private:

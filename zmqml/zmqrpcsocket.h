@@ -12,8 +12,8 @@ public:
 signals:
 
 public slots:
-    void invokeRemoteMethod(const QString &method, const QVariantList &args);
-    void invokeRemoteMethod(const QList<QByteArray> &prevParts, const QString &method, const QVariantList &args);
+    void invokeRemoteMethod(const QByteArray &method, const QVariantList &args);
+    void invokeRemoteMethod(const QList<QByteArray> &prevParts, const QByteArray &method, const QVariantList &args);
 
 };
 

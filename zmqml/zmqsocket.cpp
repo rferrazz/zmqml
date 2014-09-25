@@ -156,27 +156,14 @@ bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, int value)
     return rc >= 0;
 }
 
-void ZMQSocket::sendMessage(const QString &message)
+void ZMQSocket::sendMessage(const QByteArray &message)
 {
-    const QByteArray &msg = message.toLocal8Bit();
-
-    const int res = zmq_send(socket, msg.constData(), msg.size(), 0);
+    const int res = zmq_send(socket, message.data(), message.size(), 0);
 
     if (res == -1) {
         zmqError("Error sending message:");
         return;
     }
-}
-
-void ZMQSocket::sendMessage(const QList<QString> &message)
-{
-    QList<QByteArray> result;
-    QStringList::const_iterator i;
-    for (i = message.constBegin(); i != message.constEnd(); ++i){
-        result << (*i).toLocal8Bit();
-    }
-
-    sendMessage(result);
 }
 
 void ZMQSocket::sendMessage(const QList<QByteArray> &message)
@@ -221,7 +208,7 @@ void ZMQSocket::setup()
             notifier->setEnabled(false);
 
             qint8 more = 1;
-            QStringList message;
+            QList<QByteArray> message;
 
             while(more == 1){
                 int event;
@@ -243,7 +230,7 @@ void ZMQSocket::setup()
                 if (res < 0)
                     continue;
 
-                message << QString::fromLocal8Bit((char *) zmq_msg_data(&part), zmq_msg_size(&part));
+                message << QByteArray((char *) zmq_msg_data(&part), zmq_msg_size(&part));
 
                 zmq_msg_close(&part);
 

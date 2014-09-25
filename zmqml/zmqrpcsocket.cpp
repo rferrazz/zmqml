@@ -11,11 +11,11 @@ ZMQRPCSocket::ZMQRPCSocket(QObject *parent) :
     ZMQSocket(parent)
 {
     connect(this, &ZMQRPCSocket::messageReceived,
-            this, [this](const QStringList &message)
+            this, [this](const QList<QByteArray> &message)
     {
         RemoteMethod method;
 
-        QByteArray last = message.last().toLatin1();
+        QByteArray last = message.last();
         QDataStream out(&last, QIODevice::ReadOnly);
         out.setVersion(QDataStream::Qt_5_0);
 
@@ -46,15 +46,15 @@ ZMQRPCSocket::ZMQRPCSocket(QObject *parent) :
     });
 }
 
-void ZMQRPCSocket::invokeRemoteMethod(const QString &method, const QVariantList &args)
+void ZMQRPCSocket::invokeRemoteMethod(const QByteArray &method, const QVariantList &args)
 {
     invokeRemoteMethod(QList<QByteArray>(), method, args);
 }
 
-void ZMQRPCSocket::invokeRemoteMethod(const QList<QByteArray> &prevParts, const QString &method, const QVariantList &args)
+void ZMQRPCSocket::invokeRemoteMethod(const QList<QByteArray> &prevParts, const QByteArray &method, const QVariantList &args)
 {
     RemoteMethod m;
-    m.method = method.toLatin1();
+    m.method = method;
     m.args = args;
 
     QByteArray content;
