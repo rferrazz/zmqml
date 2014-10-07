@@ -31,15 +31,16 @@ Window {
         addresses: ["tcp://127.0.0.1:8000"]
         method: ZMQSocket.Connect
 
-        function writeHello(arg) {
-            text.text = "Hello from %1".arg(arg);
+        function writeHello(str, num, flo) {
+            console.log("Method invoked");
+            text.text = "Hello from %1, %2, %3".arg(str).arg(num).arg(flo);
         }
     }
 
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            sender.invokeRemoteMethod("writeHello", ["asd"]);
+            sender.invokeRemoteMethod("writeHello", ["asd", 1, 3.2]);
         }
     }
 
