@@ -14,7 +14,8 @@ SOURCES += \
     zmqcontext.cpp \
     zmqsocket.cpp \
     remotemethod.cpp \
-    zmqrpcsocket.cpp
+    zmqrpcsocket.cpp \
+    bytearraytools.cpp
 
 HEADERS += \
     zmq.h \
@@ -22,7 +23,8 @@ HEADERS += \
     zmqcontext.h \
     zmqsocket.h \
     remotemethod.h \
-    zmqrpcsocket.h
+    zmqrpcsocket.h \
+    bytearraytools.h
 
 OTHER_FILES = qmldir
 

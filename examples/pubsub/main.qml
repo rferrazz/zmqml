@@ -32,14 +32,15 @@ Window {
         method: ZMQSocket.Connect
 
         onMessageReceived: {
-            text.text = message;
+            console.log(BATools.stringify(message));
+            text.text = BATools.stringify(message)[0];
         }
     }
 
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            sender.sendMessage("Hello world from zmq pubsub");
+            sender.sendMessage(BATools.byteArrayfy("Hello world from zmq pubsub"));
         }
     }
 
