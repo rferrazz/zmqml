@@ -9,8 +9,6 @@ class ZMQRPCSocket : public ZMQSocket
 public:
     explicit ZMQRPCSocket(QObject *parent = 0);
 
-signals:
-
 public slots:
     void invokeRemoteMethod(const QByteArray &method, const QVariantList &args);
     void invokeRemoteMethod(const QList<QByteArray> &prevParts, const QByteArray &method, const QVariantList &args);
