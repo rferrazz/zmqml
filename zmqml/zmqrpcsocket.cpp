@@ -34,10 +34,13 @@ ZMQRPCSocket::ZMQRPCSocket(QObject *parent) :
         const QMetaObject *mo = this->metaObject();
 
         QString signature = QString("%1()").arg(QString(method.method));
-        for (int i = 0; i < method.args.count(); ++i){
-            signature.insert(signature.length() - 1, "QVariant,");
+
+        if (method.args.count()) {
+            for (int i = 0; i < method.args.count(); ++i){
+                signature.insert(signature.length() - 1, "QVariant,");
+            }
+            signature.remove(signature.length() -2, 1);
         }
-        signature.remove(signature.length() -2, 1);
 
         bool result = false;
         int index = mo->indexOfMethod(qPrintable(signature));
