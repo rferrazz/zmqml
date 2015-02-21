@@ -83,7 +83,7 @@ void ZMQSocket::setIdentity(const QByteArray &id)
         zmq_setsockopt(socket, ZMQ_IDENTITY, (void *) id.data(), id.size());
     }
 
-    _identity == id;
+    _identity = id;
     emit identityChanged();
 }
 
