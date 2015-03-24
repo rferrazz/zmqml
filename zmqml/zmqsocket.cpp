@@ -58,9 +58,9 @@ QVariantList ZMQSocket::addresses() const
     return _addr;
 }
 
-QByteArray ZMQSocket::subscription() const
+QStringList ZMQSocket::subscriptions() const
 {
-    return _subscription;
+    return _subscriptions.toList();
 }
 
 void ZMQSocket::setType(const ZMQSocket::SocketType type)
@@ -132,18 +132,29 @@ void ZMQSocket::setAddresses(const QVariantList &addresses)
         setup();
 }
 
-void ZMQSocket::setSubscription(const QByteArray &sub)
+void ZMQSocket::setSubscriptions(const QStringList &sub)
 {
-    if (_subscription == sub)
+    const QSet<QString> new_subs = sub.toSet();
+    if (_subscriptions == new_subs)
         return;
 
     if (socket && _type == Sub) {
-        zmq_setsockopt(socket, ZMQ_UNSUBSCRIBE, (void *) _subscription.data(), _subscription.size());
-        zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) sub.data(), sub.size());
+        const QSet<QString> removed = _subscriptions - new_subs;
+        const QSet<QString> added = new_subs - _subscriptions;
+
+        foreach (const QString &s, removed) {
+            const QByteArray &b = s.toUtf8();
+            zmq_setsockopt(socket, ZMQ_UNSUBSCRIBE, (void *) b.data(), b.size());
+        }
+
+        foreach (const QString &s, added) {
+            const QByteArray &b = s.toUtf8();
+            zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) b.data(), b.size());
+        }
     }
 
-    _subscription = sub;
-    emit subscriptionChanged();
+    _subscriptions = new_subs;
+    emit subscriptionsChanged();
 }
 
 bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, int value)
@@ -258,6 +269,9 @@ void ZMQSocket::setup()
     }
 
     if (_type == Sub) {
-        zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) _subscription.data(), _subscription.size());
+        foreach (const QString &s, _subscriptions) {
+            const QByteArray &b = s.toUtf8();
+            zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) b.data(), b.size());
+        }
     }
 }

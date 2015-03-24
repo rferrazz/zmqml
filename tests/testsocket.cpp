@@ -22,28 +22,28 @@ void TestSocket::testSocket_data()
     QTest::addColumn<ZMQSocket::SocketType>("second_type");
     QTest::addColumn< QVariantList >("second_addr");
 
-    QTest::addColumn<QByteArray> ("subscription");
+    QTest::addColumn<QStringList> ("subscription");
 
     QTest::addColumn< QList<QByteArray> >("message");
 
     QTest::newRow("pub/sub short") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://1"))
                                            << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://1"))
-                                           << QByteArray("")
+                                           << QStringList({""})
                                            << (QList<QByteArray>() << "Hello World");
 
     QTest::newRow("pub/sub multipart") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://2"))
                                           << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://2"))
-                                          << QByteArray("hello")
+                                          << QStringList({"hello"})
                                           << (QList<QByteArray>() << "hello" << "world" << "!");
 
     QTest::newRow("req/rep short") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
                                    << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
-                                   << QByteArray("")
+                                   << QStringList({""})
                                    << (QList<QByteArray>() << "hello world");
 
     QTest::newRow("req/rep multipart") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
                                    << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
-                                   << QByteArray("")
+                                   << QStringList({""})
                                    << (QList<QByteArray>() << "hello" << "world");
 }
 
@@ -54,7 +54,7 @@ void TestSocket::testSocket()
 
     QFETCH(ZMQSocket::SocketType, second_type);
     QFETCH(QVariantList, second_addr);
-    QFETCH(QByteArray, subscription);
+    QFETCH(QStringList, subscription);
     QFETCH(QList<QByteArray>, message);
 
     ZMQSocket first;
@@ -67,7 +67,7 @@ void TestSocket::testSocket()
     second.setType(second_type);
     second.setAddresses(second_addr);
     second.setMethod(ZMQSocket::Connect);
-    second.setSubscription(subscription);
+    second.setSubscriptions(subscription);
 
     QCOMPARE(secondReady.count(), 1);
 

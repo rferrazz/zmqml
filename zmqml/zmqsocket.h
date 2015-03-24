@@ -16,6 +16,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QVariant>
+#include <QSet>
 
 class QSocketNotifier;
 class ZMQContext;
@@ -30,7 +31,7 @@ class ZMQSocket : public QObject
     Q_PROPERTY(QByteArray identity READ identity WRITE setIdentity NOTIFY identityChanged)
     Q_PROPERTY(ConnectionMethod method READ method WRITE setMethod NOTIFY methodChanged)
     Q_PROPERTY(QVariantList addresses READ addresses WRITE setAddresses NOTIFY addressesChanged)
-    Q_PROPERTY(QByteArray subscription READ subscription WRITE setSubscription NOTIFY subscriptionChanged)
+    Q_PROPERTY(QStringList subscriptions READ subscriptions WRITE setSubscriptions NOTIFY subscriptionsChanged)
 public:
 
     enum ConnectionMethod {
@@ -91,13 +92,13 @@ public:
     QByteArray identity() const;
     ConnectionMethod method() const;
     QVariantList addresses() const;
-    QByteArray subscription() const;
+    QStringList subscriptions() const;
 
     void setType(const SocketType type);
     void setIdentity(const QByteArray &id);
     void setMethod(const ConnectionMethod method);
     void setAddresses(const QVariantList &addresses);
-    void setSubscription(const QByteArray &sub);
+    void setSubscriptions(const QStringList &sub);
 
     Q_INVOKABLE bool setSockOption(SockOption option, int value);
 
@@ -107,7 +108,7 @@ signals:
     void identityChanged();
     void methodChanged();
     void addressesChanged();
-    void subscriptionChanged();
+    void subscriptionsChanged();
 
     void messageReceived(const QList<QByteArray> &message);
 
@@ -123,7 +124,7 @@ private:
     QByteArray _identity;
     ConnectionMethod _method;
     QVariantList _addr;
-    QByteArray _subscription;
+    QSet<QString> _subscriptions;
 
     void *socket;
     QSocketNotifier *notifier;
