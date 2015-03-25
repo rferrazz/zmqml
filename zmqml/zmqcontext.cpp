@@ -13,7 +13,7 @@
 #include <QDebug>
 #include <QMutex>
 
-#include <zmq.hpp>
+#include <zmq.h>
 
 ZMQContext *ZMQContext::_instance = 0;
 

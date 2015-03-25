@@ -11,12 +11,13 @@
 #ifndef ZMQSOCKET_H
 #define ZMQSOCKET_H
 
-#include "zmq.h"
+#include <zmq.h>
 
 #include <QObject>
 #include <QUrl>
 #include <QVariant>
 #include <QSet>
+#include <QStringList>
 
 class QSocketNotifier;
 class ZMQContext;
