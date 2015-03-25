@@ -3,7 +3,7 @@ TEMPLATE = app
 QT += qml quick
 CONFIG += c++11
 
-LIBS += -lzmq
+include($$PWD/../../zmq.pri)
 
 INCLUDEPATH += $$PWD/../../zmqml/
 

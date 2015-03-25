@@ -6,7 +6,7 @@ CONFIG += qt plugin c++11
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = zmq.Components
 
-LIBS += -lzmq
+include($$PWD/../zmq.pri)
 
 # Input
 SOURCES += \

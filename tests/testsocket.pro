@@ -2,7 +2,7 @@ QT += testlib
 
 CONFIG += testcase c++11
 
-LIBS += -lzmq
+include($$PWD/../zmq.pri)
 
 INCLUDEPATH += $$PWD/../zmqml/
 
