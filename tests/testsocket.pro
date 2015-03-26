@@ -1,4 +1,5 @@
 QT += testlib
+QT -= gui
 
 CONFIG += testcase c++11
 
