@@ -1,7 +1,7 @@
-ZmQML
-======
+# ZmQML
+### Qt5/QML Binding for zeromq
 
-Qt5/QML Binding for zeromq
+[![Build Status](https://travis-ci.org/rferrazz/zmqml.svg?branch=master)](https://travis-ci.org/rferrazz/zmqml)
 
  - It is built upon the C zeromq API
  - It doesn't throw exceptions, it returns invalid objects instead.
@@ -12,3 +12,4 @@ Dependencies
 
  - Qt 5.x
  - libzmq
+
