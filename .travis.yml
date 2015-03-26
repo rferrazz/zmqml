@@ -29,3 +29,4 @@ script:
  - source /opt/qt54/bin/qt54-env.sh
  - qmake
  - make
+ - make check
