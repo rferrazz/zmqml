@@ -68,6 +68,14 @@ public:
         ReconnectIvlMax = ZMQ_RECONNECT_IVL_MAX,
         Backlog = ZMQ_BACKLOG,
         MulticastHops = ZMQ_MULTICAST_HOPS,
+        IPV4Only = ZMQ_IPV4ONLY,
+        RouterMandatory = ZMQ_ROUTER_MANDATORY,
+        XPubVerbose = ZMQ_XPUB_VERBOSE,
+        TcpKeepalive = ZMQ_TCP_KEEPALIVE,
+        TcpKeepaliveCnt = ZMQ_TCP_KEEPALIVE_CNT,
+        TcpKeepaliveIdle = ZMQ_TCP_KEEPALIVE_IDLE,
+        TcpKeepaliveIntvl = ZMQ_TCP_KEEPALIVE_INTVL,
+
 #if ZMQ_VERSION_MAJOR > 3
         IPV6 = ZMQ_IPV6,
         Immediate = ZMQ_IMMEDIATE,
@@ -76,13 +84,6 @@ public:
         ReqCorrelate = ZMQ_REQ_CORRELATE,
         ReqRelaxed = ZMQ_REQ_RELAXED,
 #endif
-        IPV4Only = ZMQ_IPV4ONLY,
-        RouterMandatory = ZMQ_ROUTER_MANDATORY,
-        XPubVerbose = ZMQ_XPUB_VERBOSE,
-        TcpKeepalive = ZMQ_TCP_KEEPALIVE,
-        TcpKeepaliveCnt = ZMQ_TCP_KEEPALIVE_CNT,
-        TcpKeepaliveIdle = ZMQ_TCP_KEEPALIVE_IDLE,
-        TcpKeepaliveIntvl = ZMQ_TCP_KEEPALIVE_INTVL
     };
 
     explicit ZMQSocket(QObject *parent = 0);
