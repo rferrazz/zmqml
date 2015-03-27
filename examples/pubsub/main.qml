@@ -29,6 +29,7 @@ Window {
         id: receiver
         type:ZMQSocket.Sub
         addresses: ["tcp://127.0.0.1:8000"]
+        subscriptions: [""]
         method: ZMQSocket.Connect
 
         onMessageReceived: {

@@ -30,6 +30,7 @@ Window {
         type:ZMQSocket.Sub
         addresses: ["tcp://127.0.0.1:8000"]
         method: ZMQSocket.Connect
+        subscriptions: [""]
 
         function writeHello(str, num, flo) {
             console.log("Method invoked");
