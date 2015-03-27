@@ -26,23 +26,23 @@ void TestSocket::testSocket_data()
 
     QTest::addColumn< QList<QByteArray> >("message");
 
-    QTest::newRow("pub/sub short") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://1"))
-                                           << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://1"))
+    QTest::newRow("pub/sub short") << ZMQSocket::Pub << QVariantList({QUrl("tcp://127.0.0.1:5566")})
+                                           << ZMQSocket::Sub << QVariantList({QUrl("tcp://127.0.0.1:5566")})
                                            << QStringList({""})
                                            << (QList<QByteArray>() << "Hello World");
 
-    QTest::newRow("pub/sub multipart") << ZMQSocket::Pub << (QVariantList() << QUrl("inproc://2"))
-                                          << ZMQSocket::Sub << (QVariantList() << QUrl("inproc://2"))
+    QTest::newRow("pub/sub multipart") << ZMQSocket::Pub << QVariantList({QUrl("tcp://127.0.0.1:6677")})
+                                          << ZMQSocket::Sub << QVariantList({QUrl("tcp://127.0.0.1:6677")})
                                           << QStringList({"hello"})
                                           << (QList<QByteArray>() << "hello" << "world" << "!");
 
-    QTest::newRow("req/rep short") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
-                                   << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
+    QTest::newRow("req/rep short") << ZMQSocket::Req << QVariantList({QUrl("inproc://3")})
+                                   << ZMQSocket::Rep << QVariantList({QUrl("inproc://3")})
                                    << QStringList({""})
                                    << (QList<QByteArray>() << "hello world");
 
-    QTest::newRow("req/rep multipart") << ZMQSocket::Req << (QVariantList() << QUrl("inproc://3"))
-                                   << ZMQSocket::Rep << (QVariantList() << QUrl("inproc://3"))
+    QTest::newRow("req/rep multipart") << ZMQSocket::Req << QVariantList({QUrl("inproc://3")})
+                                   << ZMQSocket::Rep << QVariantList({QUrl("inproc://3")})
                                    << QStringList({""})
                                    << (QList<QByteArray>() << "hello" << "world");
 }
@@ -63,6 +63,11 @@ void TestSocket::testSocket()
     QSignalSpy firstReady(&first, SIGNAL(readyChanged()));
     QSignalSpy secondReady(&second, SIGNAL(readyChanged()));
 
+    first.setType(first_type);
+    first.setAddresses(first_addr);
+    first.setMethod(ZMQSocket::Bind);
+
+    QCOMPARE(firstReady.count(), 1);
 
     second.setType(second_type);
     second.setAddresses(second_addr);
@@ -71,13 +76,9 @@ void TestSocket::testSocket()
 
     QCOMPARE(secondReady.count(), 1);
 
-    first.setType(first_type);
-    first.setAddresses(first_addr);
-    first.setMethod(ZMQSocket::Bind);
-
-    QCOMPARE(firstReady.count(), 1);
-
     QSignalSpy spy(&second, SIGNAL(messageReceived(QList<QByteArray>)));
+
+    QTest::qWait(100);
 
     first.sendMessage(message);
 
