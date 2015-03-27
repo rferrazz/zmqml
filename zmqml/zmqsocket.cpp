@@ -220,16 +220,12 @@ void ZMQSocket::setup()
         [=]() {
             notifier->setEnabled(false);
 
-            qint8 more = 1;
+            quint32 event = ZMQ_POLLIN;
             QList<QByteArray> message;
 
-            while(more == 1){
-                int event;
+            while(event & ZMQ_POLLIN){
                 size_t ev_size = sizeof(event);
                 zmq_getsockopt(socket, ZMQ_EVENTS, (void *) &event, &ev_size);
-
-                if (!(event & ZMQ_POLLIN))
-                    break;
 
                 zmq_msg_t part;
                 int rc = zmq_msg_init(&part);
@@ -247,8 +243,14 @@ void ZMQSocket::setup()
 
                 zmq_msg_close(&part);
 
-                size_t size = sizeof(quint8);
-                zmq_getsockopt(socket, ZMQ_RCVMORE, (void *)&more, &size);
+                qint64 more = 0;
+                size_t size = sizeof(more);
+                zmq_getsockopt(socket, ZMQ_RCVMORE, static_cast<void *>(&more), &size);
+
+                if (!more && message.length()) {
+                    emit messageReceived(message);
+                    message.clear();
+                }
             }
 
             if (message.length() > 0)
