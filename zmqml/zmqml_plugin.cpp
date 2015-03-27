@@ -28,7 +28,7 @@ void ZmqmlPlugin::registerTypes(const char *uri)
     // @uri zmq.Components
     qmlRegisterType<ZMQSocket>(uri, 1, 0, "ZMQSocket");
     qmlRegisterType<ZMQRPCSocket>(uri, 1, 0, "ZMQRPCSocket");
-    qmlRegisterSingletonType<ByteArrayTools>(uri, 1, 0, "BATools", byteArrayTools_factory);
+    qmlRegisterSingletonType<ByteArrayTools>(uri, 1, 0, "BAT", byteArrayTools_factory);
 }
 
 
