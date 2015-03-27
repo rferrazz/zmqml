@@ -2,8 +2,8 @@ language: cpp
 compiler:
  - gcc
 env:
- - ZMQ="git://github.com/zeromq/zeromq3-x.git -b v3.2.4"
- - ZMQ="git://github.com/zeromq/zeromq4-x.git -b v4.0.3" SODIUM="git://github.com/jedisct1/libsodium.git -b 0.4.5"
+ - ZMQ="https://github.com/zeromq/zeromq3-x.git"
+ - ZMQ="https://github.com/zeromq/zeromq4-x.git" SODIUM="git://github.com/jedisct1/libsodium.git -b 0.4.5"
 before_install:
  - sudo add-apt-repository --yes ppa:beineri/opt-qt541
  - sudo apt-get update -qq
