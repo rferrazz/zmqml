@@ -19,6 +19,8 @@
 #include <QSet>
 #include <QStringList>
 
+#include <functional>
+
 class QSocketNotifier;
 class ZMQContext;
 
@@ -60,14 +62,15 @@ public:
         SndHwm = ZMQ_SNDHWM,
         RcvHwm = ZMQ_RCVHWM,
         Rate = ZMQ_RATE,
+        RecoveryIvl = ZMQ_RECOVERY_IVL,
         SndBuf = ZMQ_SNDBUF,
         RcvBuf = ZMQ_RCVBUF,
         Linger = ZMQ_LINGER,
-        RecoveryIvl = ZMQ_RECOVERY_IVL,
         ReconnectIvl = ZMQ_RECONNECT_IVL,
         ReconnectIvlMax = ZMQ_RECONNECT_IVL_MAX,
         Backlog = ZMQ_BACKLOG,
         MulticastHops = ZMQ_MULTICAST_HOPS,
+        SndTimeOut = ZMQ_SNDTIMEO,
         IPV4Only = ZMQ_IPV4ONLY,
         RouterMandatory = ZMQ_ROUTER_MANDATORY,
         XPubVerbose = ZMQ_XPUB_VERBOSE,
@@ -83,6 +86,10 @@ public:
         ProbeRouter = ZMQ_PROBE_ROUTER,
         ReqCorrelate = ZMQ_REQ_CORRELATE,
         ReqRelaxed = ZMQ_REQ_RELAXED,
+        CurveServer = ZMQ_CURVE_SERVER,
+        CurvePublicKey = ZMQ_CURVE_PUBLICKEY,
+        CurveSecretKey = ZMQ_CURVE_SECRETKEY,
+        CurveServerKey = ZMQ_CURVE_SERVERKEY
 #endif
     };
 
@@ -102,7 +109,8 @@ public:
     void setAddresses(const QVariantList &addresses);
     void setSubscriptions(const QStringList &sub);
 
-    Q_INVOKABLE bool setSockOption(SockOption option, int value);
+    Q_INVOKABLE bool setSockOption(SockOption option, const QVariant &value);
+    Q_INVOKABLE QVariant getSockOption(SockOption option);
 
 signals:
     void readyChanged();
@@ -122,6 +130,12 @@ private:
     void setup();
 
 private:
+    struct Option {
+        std::function<bool (const QVariant &)> setter;
+        std::function<QVariant ()> getter;
+    };
+    QHash<SockOption, Option> options;
+
     SocketType _type;
     QByteArray _identity;
     ConnectionMethod _method;

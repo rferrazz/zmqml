@@ -12,7 +12,12 @@ private slots:
     void testSocket_data();
     void testSocket();
 
+    void testSockOptions_data();
+    void testSockOptions();
+
 };
+
+Q_DECLARE_METATYPE(ZMQSocket::SockOption)
 
 void TestSocket::testSocket_data()
 {
@@ -90,6 +95,28 @@ void TestSocket::testSocket()
     QCOMPARE(args.length(), 1);
 
     QCOMPARE(args.first().value< QList<QByteArray> >(), message);
+}
+
+void TestSocket::testSockOptions_data()
+{
+    QTest::addColumn<ZMQSocket::SockOption>("option");
+    QTest::addColumn<QVariant>("value");
+
+    QTest::newRow("sndhwm") << ZMQSocket::SndHwm << QVariant(3);
+}
+
+void TestSocket::testSockOptions()
+{
+    QFETCH(ZMQSocket::SockOption, option);
+    QFETCH(QVariant, value);
+
+    ZMQSocket s;
+    s.setType(ZMQSocket::Pub);
+    s.setMethod(ZMQSocket::Bind);
+    s.setAddresses({"tcp://127.0.0.1:6677"});
+
+    QVERIFY(s.setSockOption(option, value));
+    QCOMPARE(s.getSockOption(option), value);
 }
 
 QTEST_MAIN(TestSocket)
