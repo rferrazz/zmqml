@@ -11,5 +11,5 @@ Dependencies
 -------------
 
  - Qt 5.x
- - libzmq
+ - libzmq >= 3.0
 
