@@ -22,14 +22,12 @@ Window {
         id: sender
         type: ZMQSocket.Pub
         addresses: ["tcp://127.0.0.1:8000"]
-        method: ZMQSocket.Bind
     }
 
     ZMQRPCSocket {
         id: receiver
         type:ZMQSocket.Sub
         addresses: ["tcp://127.0.0.1:8000"]
-        method: ZMQSocket.Connect
         subscriptions: [""]
 
         function writeHello(str, num, flo) {
@@ -49,5 +47,10 @@ Window {
         id: text
         text: qsTr("Click to invoke the remote method")
         anchors.centerIn: parent
+    }
+
+    Component.onCompleted: {
+        sender.bindSocket();
+        receiver.connectSocket();
     }
 }

@@ -22,7 +22,6 @@ Window {
         id: sender
         type: ZMQSocket.Pub
         addresses: ["tcp://127.0.0.1:8000"]
-        method: ZMQSocket.Bind
     }
 
     ZMQSocket {
@@ -30,7 +29,6 @@ Window {
         type:ZMQSocket.Sub
         addresses: ["tcp://127.0.0.1:8000"]
         subscriptions: [""]
-        method: ZMQSocket.Connect
 
         onMessageReceived: {
             console.log(BAT.stringify(message));
@@ -49,5 +47,10 @@ Window {
         id: text
         text: qsTr("Click to send the zmq message")
         anchors.centerIn: parent
+    }
+
+    Component.onCompleted: {
+        sender.bindSocket();
+        receiver.connectSocket();
     }
 }
