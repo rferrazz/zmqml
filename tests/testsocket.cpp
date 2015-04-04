@@ -100,6 +100,9 @@ void TestSocket::testSockOptions_data()
     QTest::addColumn<QVariant>("value");
 
     QTest::newRow("sndhwm") << ZMQSocket::SndHwm << QVariant(3);
+#if ZMQ_VERSION_MAJOR > 3
+    QTest::newRow("curve") << ZMQSocket::CurveServerKey << QVariant(QByteArray("Yne@$w-vo<fVvi]a<NY6T1ed:M$fCG*[IaLV{hID"));
+#endif
 }
 
 void TestSocket::testSockOptions()
