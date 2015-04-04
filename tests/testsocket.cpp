@@ -65,21 +65,18 @@ void TestSocket::testSocket()
     ZMQSocket first;
     ZMQSocket second;
 
-    QSignalSpy firstReady(&first, SIGNAL(readyChanged()));
-    QSignalSpy secondReady(&second, SIGNAL(readyChanged()));
-
     first.setType(first_type);
     first.setAddresses(first_addr);
-    first.setMethod(ZMQSocket::Bind);
+    first.bindSocket();
 
-    QCOMPARE(firstReady.count(), 1);
+    QCOMPARE(first.status(), ZMQSocket::Connected);
 
     second.setType(second_type);
     second.setAddresses(second_addr);
-    second.setMethod(ZMQSocket::Connect);
     second.setSubscriptions(subscription);
+    second.connectSocket();
 
-    QCOMPARE(secondReady.count(), 1);
+    QCOMPARE(second.status(), ZMQSocket::Connected);
 
     QSignalSpy spy(&second, SIGNAL(messageReceived(QList<QByteArray>)));
 
@@ -111,8 +108,7 @@ void TestSocket::testSockOptions()
     QFETCH(QVariant, value);
 
     ZMQSocket s;
-    s.setType(ZMQSocket::Pub);
-    s.setMethod(ZMQSocket::Bind);
+    s.setType(ZMQSocket::Dealer);
     s.setAddresses({"tcp://127.0.0.1:6677"});
 
     QVERIFY(s.setSockOption(option, value));

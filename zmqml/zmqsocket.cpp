@@ -23,9 +23,9 @@ inline void zmqError(const QString &message) {
 
 ZMQSocket::ZMQSocket(QObject *parent) :
     QObject(parent),
+    _connection_status(Invalid),
     _type(Null),
     _identity(QUuid::createUuid().toByteArray()),
-    _method(Unset),
     socket(0)
 {
     auto setIntValue = [this] (SockOption key, const QVariant &value) {
@@ -130,9 +130,9 @@ ZMQSocket::~ZMQSocket()
         zmq_close(socket);
 }
 
-bool ZMQSocket::ready() const
+ZMQSocket::ConnectionStatus ZMQSocket::status() const
 {
-    return bool(socket);
+    return _connection_status;
 }
 
 ZMQSocket::SocketType ZMQSocket::type() const
@@ -143,11 +143,6 @@ ZMQSocket::SocketType ZMQSocket::type() const
 QByteArray ZMQSocket::identity() const
 {
     return _identity;
-}
-
-ZMQSocket::ConnectionMethod ZMQSocket::method() const
-{
-    return _method;
 }
 
 QVariantList ZMQSocket::addresses() const
@@ -186,21 +181,10 @@ void ZMQSocket::setIdentity(const QByteArray &id)
     emit identityChanged();
 }
 
-void ZMQSocket::setMethod(const ZMQSocket::ConnectionMethod method)
-{
-    if (_method != Unset)
-        return;
-
-    _method = method;
-    emit methodChanged();
-
-    setup();
-}
-
 void ZMQSocket::setAddresses(const QVariantList &addresses)
 {
-    if (_addr.length() > 0 && socket) {
-        int (*dfun)(void *, const char*) = _method == Connect ? zmq_disconnect : zmq_unbind;
+    if (socket && _connection_status == Connected) {
+        int (*dfun)(void *, const char*) = _connection_method == Connect ? zmq_disconnect : zmq_unbind;
 
         foreach (const QVariant &a, _addr) {
             int rc = dfun(socket, qPrintable(a.toUrl().toString()));
@@ -210,7 +194,7 @@ void ZMQSocket::setAddresses(const QVariantList &addresses)
         }
 
 
-        int (*cfun)(void *, const char*) = _method == Connect ? zmq_connect : zmq_bind;
+        int (*cfun)(void *, const char*) = _connection_method == Connect ? zmq_connect : zmq_bind;
         int result;
 
         foreach(const QVariant &addr, addresses) {
@@ -224,9 +208,6 @@ void ZMQSocket::setAddresses(const QVariantList &addresses)
 
     _addr = addresses;
     emit addressesChanged();
-
-    if (!socket)
-        setup();
 }
 
 void ZMQSocket::setSubscriptions(const QStringList &sub)
@@ -279,6 +260,16 @@ QVariant ZMQSocket::getSockOption(ZMQSocket::SockOption option)
     return options[option].getter();
 }
 
+bool ZMQSocket::connectSocket()
+{
+    return setupConnection(Connect);
+}
+
+bool ZMQSocket::bindSocket()
+{
+    return setupConnection(Bind);
+}
+
 void ZMQSocket::sendMessage(const QByteArray &message)
 {
     const int res = zmq_send(socket, message.data(), message.size(), 0);
@@ -306,7 +297,7 @@ void ZMQSocket::sendMessage(const QList<QByteArray> &message)
 
 void ZMQSocket::setup()
 {
-    if (_type == Null || _method == Unset || _addr.length() == 0)
+    if (!_type)
         return;
 
     socket = zmq_socket(ZMQContext::instance()->context, int(_type));
@@ -316,7 +307,8 @@ void ZMQSocket::setup()
         return;
     }
 
-    emit readyChanged();
+    _connection_status = Disconnected;
+    emit connectionStatusChanged();
 
     zmq_setsockopt(socket, ZMQ_IDENTITY, (void *) _identity.data(), _identity.size());
 
@@ -369,21 +361,30 @@ void ZMQSocket::setup()
             notifier->setEnabled(true);
         }
     );
+}
 
-    int (*fun)(void *, const char*) = _method == Connect ? zmq_connect : zmq_bind;
+bool ZMQSocket::setupConnection(ConnectionMethod method)
+{
+    if (_connection_status != Disconnected) {
+        qWarning() << QString("Socket is not ready to %1").arg(method == Connect ? "connect" : "bind");
+        return false;
+    }
+
+    int (*fun)(void *, const char *) = method == Connect ? zmq_connect : zmq_bind;
     int result;
 
     foreach(const QVariant &addr, _addr) {
         result = fun(socket, qPrintable(addr.toUrl().toString()));
 
-        if (result == -1)
+        if (result == -1) {
             zmqError("Connection error:");
-    }
-
-    if (_type == Sub) {
-        foreach (const QString &s, _subscriptions) {
-            const QByteArray &b = s.toUtf8();
-            zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) b.data(), b.size());
+            return false;
         }
     }
+
+    _connection_method = method;
+    _connection_status = Connected;
+    emit connectionStatusChanged();
+
+    return true;
 }

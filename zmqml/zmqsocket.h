@@ -28,19 +28,18 @@ class ZMQSocket : public QObject
 {
     Q_OBJECT
 
-    Q_ENUMS(ConnectionMethod SocketType SockOption)
-    Q_PROPERTY(bool ready READ ready NOTIFY readyChanged)
+    Q_ENUMS(ConnectionStatus SocketType SockOption)
+    Q_PROPERTY(ConnectionStatus status READ status NOTIFY connectionStatusChanged)
     Q_PROPERTY(SocketType type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QByteArray identity READ identity WRITE setIdentity NOTIFY identityChanged)
-    Q_PROPERTY(ConnectionMethod method READ method WRITE setMethod NOTIFY methodChanged)
     Q_PROPERTY(QVariantList addresses READ addresses WRITE setAddresses NOTIFY addressesChanged)
     Q_PROPERTY(QStringList subscriptions READ subscriptions WRITE setSubscriptions NOTIFY subscriptionsChanged)
 public:
 
-    enum ConnectionMethod {
-        Bind,
-        Connect,
-        Unset
+    enum ConnectionStatus {
+        Invalid,
+        Disconnected,
+        Connected
     };
 
     enum SocketType {
@@ -96,24 +95,25 @@ public:
     explicit ZMQSocket(QObject *parent = 0);
     ~ZMQSocket();
 
-    bool ready() const;
+    ConnectionStatus status() const;
     SocketType type() const;
     QByteArray identity() const;
-    ConnectionMethod method() const;
     QVariantList addresses() const;
     QStringList subscriptions() const;
 
     void setType(const SocketType type);
     void setIdentity(const QByteArray &id);
-    void setMethod(const ConnectionMethod method);
     void setAddresses(const QVariantList &addresses);
     void setSubscriptions(const QStringList &sub);
 
     Q_INVOKABLE bool setSockOption(SockOption option, const QVariant &value);
     Q_INVOKABLE QVariant getSockOption(SockOption option);
 
+    Q_INVOKABLE bool connectSocket();
+    Q_INVOKABLE bool bindSocket();
+
 signals:
-    void readyChanged();
+    void connectionStatusChanged();
     void typeChanged();
     void identityChanged();
     void methodChanged();
@@ -127,18 +127,24 @@ public slots:
     void sendMessage(const QList<QByteArray> &message);
 
 private:
-    void setup();
+    enum ConnectionMethod {
+        Connect,
+        Bind
+    };
 
-private:
     struct Option {
         std::function<bool (const QVariant &)> setter;
         std::function<QVariant ()> getter;
     };
+
+    void setup();
+    bool setupConnection(ZMQSocket::ConnectionMethod method);
     QHash<SockOption, Option> options;
 
+    ConnectionStatus _connection_status;
+    ConnectionMethod _connection_method;
     SocketType _type;
     QByteArray _identity;
-    ConnectionMethod _method;
     QVariantList _addr;
     QSet<QString> _subscriptions;
 
