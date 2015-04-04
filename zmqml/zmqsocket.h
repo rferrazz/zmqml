@@ -139,6 +139,8 @@ private:
 
     void setup();
     bool setupConnection(ZMQSocket::ConnectionMethod method);
+    void setupOptionsTable();
+
     QHash<SockOption, Option> options;
 
     ConnectionStatus _connection_status;

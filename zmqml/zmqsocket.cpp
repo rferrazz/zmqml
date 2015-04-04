@@ -27,102 +27,7 @@ ZMQSocket::ZMQSocket(QObject *parent) :
     _type(Null),
     _identity(QUuid::createUuid().toByteArray()),
     socket(0)
-{
-    auto setIntValue = [this] (SockOption key, const QVariant &value) {
-        bool ok;
-        int int_val = value.toInt(&ok);
-        if (!ok) {
-            qWarning() << "Value is not int";
-            return false;
-        }
-
-        const int rc = zmq_setsockopt(socket, static_cast<int>(key), static_cast<void *>(&int_val), sizeof(int));
-        if (rc != 0) {
-            zmqError(QString("Error setting option %1:").arg(key));
-            return false;
-        }
-
-        return true;
-    };
-
-    auto getIntValue = [this] (SockOption key) {
-        int option;
-        size_t size = sizeof(option);
-
-        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(&option), &size);
-        if (rc != 0) {
-            zmqError(QString("Error getting option %1:").arg(key));
-            return QVariant();
-        }
-
-        return QVariant(option);
-    };
-
-    auto setByteArrayValue = [this] (SockOption key, const QVariant &value) {
-        QByteArray ba_value = value.toByteArray();
-        if (ba_value.isNull()) {
-            qWarning() << "Value is not a QByteArray";
-            return false;
-        }
-
-        const int rc = zmq_setsockopt(socket, static_cast<int>(key), static_cast<void *>(ba_value.data()), ba_value.size());
-        if (rc != 0) {
-            zmqError(QString("Error setting option %1:").arg(key));
-            return false;
-        }
-
-        return true;
-    };
-
-
-    auto getByteArrayValue = [this] (SockOption key, ulong size) {
-        QByteArray data(size, ' ');
-
-        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(data.data()), static_cast<size_t *>(&size));
-        if (rc != 0) {
-            zmqError(QString("Error getting option %1:").arg(key));
-            return QVariant();
-        }
-
-        data.resize(data.indexOf('\0') + 1);
-
-        return QVariant(data);
-    };
-
-    options = QHash<SockOption, Option>({
-        {SndHwm, {std::bind(setIntValue, SndHwm, _1), std::bind(getIntValue, SndHwm)}},
-        {RcvHwm, {std::bind(setIntValue, RcvHwm, _1), std::bind(getIntValue, RcvHwm)}},
-        {Rate, {std::bind(setIntValue, Rate, _1), std::bind(getIntValue, Rate)}},
-        {RecoveryIvl, {std::bind(setIntValue, RecoveryIvl, _1), std::bind(getIntValue, RecoveryIvl)}},
-        {SndBuf, {std::bind(setIntValue, SndBuf, _1), std::bind(getIntValue, SndBuf)}},
-        {RcvBuf, {std::bind(setIntValue, RcvBuf, _1), std::bind(getIntValue, RcvBuf)}},
-        {Linger, {std::bind(setIntValue, Linger, _1), std::bind(getIntValue, Linger)}},
-        {ReconnectIvl, {std::bind(setIntValue, ReconnectIvl, _1), std::bind(getIntValue, ReconnectIvl)}},
-        {ReconnectIvlMax, {std::bind(setIntValue, ReconnectIvlMax, _1), std::bind(getIntValue, ReconnectIvlMax)}},
-        {Backlog, {std::bind(setIntValue, Backlog, _1), std::bind(getIntValue, Backlog)}},
-        {MulticastHops, {std::bind(setIntValue, MulticastHops, _1), std::bind(getIntValue, MulticastHops)}},
-        {SndTimeOut, {std::bind(setIntValue, SndTimeOut, _1), std::bind(getIntValue, SndTimeOut)}},
-        {IPV4Only, {std::bind(setIntValue, IPV4Only, _1), std::bind(getIntValue, IPV4Only)}},
-        {RouterMandatory, {std::bind(setIntValue, RouterMandatory, _1), std::bind(getIntValue, RouterMandatory)}},
-        {XPubVerbose, {std::bind(setIntValue, XPubVerbose, _1), std::bind(getIntValue, XPubVerbose)}},
-        {TcpKeepalive, {std::bind(setIntValue, TcpKeepalive, _1), std::bind(getIntValue, TcpKeepalive)}},
-        {TcpKeepaliveIdle, {std::bind(setIntValue, TcpKeepaliveIdle, _1), std::bind(getIntValue, TcpKeepaliveIdle)}},
-        {TcpKeepaliveCnt, {std::bind(setIntValue, TcpKeepaliveCnt, _1), std::bind(getIntValue, TcpKeepaliveCnt)}},
-        {TcpKeepaliveIntvl, {std::bind(setIntValue, TcpKeepaliveIntvl, _1), std::bind(getIntValue, TcpKeepaliveIntvl)}},
-#if ZMQ_VERSION_MAJOR > 3
-        {IPV6, {std::bind(setIntValue, IPV6, _1), std::bind(getIntValue, IPV6)}},
-        {Immediate, {std::bind(setIntValue, Immediate, _1), std::bind(getIntValue, Immediate)}},
-        {RouterRaw, {std::bind(setIntValue, RouterRaw, _1), std::bind(getIntValue, RouterRaw)}},
-        {ProbeRouter, {std::bind(setIntValue, ProbeRouter, _1), std::bind(getIntValue, ProbeRouter)}},
-        {ReqCorrelate, {std::bind(setIntValue, ReqCorrelate, _1), std::bind(getIntValue, ReqCorrelate)}},
-        {ReqRelaxed, {std::bind(setIntValue, ReqRelaxed, _1), std::bind(getIntValue, ReqRelaxed)}},
-        {CurveServer, {std::bind(setIntValue, CurveServer, _1), std::bind(getIntValue, CurveServer)}},
-        {CurvePublicKey, {std::bind(setByteArrayValue, CurvePublicKey, _1), std::bind(getByteArrayValue, CurvePublicKey, 41)}},
-        {CurveSecretKey, {std::bind(setByteArrayValue, CurveSecretKey, _1), std::bind(getByteArrayValue, CurveSecretKey, 41)}},
-        {CurveServerKey, {std::bind(setByteArrayValue, CurveServerKey, _1), std::bind(getByteArrayValue, CurveServerKey, 41)}},
-#endif
-    });
-}
+{}
 
 ZMQSocket::~ZMQSocket()
 {
@@ -237,6 +142,9 @@ void ZMQSocket::setSubscriptions(const QStringList &sub)
 
 bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, const QVariant &value)
 {
+    if (!options.size())
+        setupOptionsTable();
+
     if (!socket) {
         qWarning() << "Error, socket not ready";
         return false;
@@ -252,6 +160,9 @@ bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, const QVariant &valu
 
 QVariant ZMQSocket::getSockOption(ZMQSocket::SockOption option)
 {
+    if (!options.size())
+        setupOptionsTable();
+
     if (!options.contains(option)) {
         qWarning() << "ZMQSocket::getSockOption: unknown option" << option;
         return QVariant();
@@ -387,4 +298,105 @@ bool ZMQSocket::setupConnection(ConnectionMethod method)
     emit connectionStatusChanged();
 
     return true;
+}
+
+void ZMQSocket::setupOptionsTable()
+{
+    if (options.size())
+        return;
+
+    auto setIntValue = [this] (SockOption key, const QVariant &value) {
+        bool ok;
+        int int_val = value.toInt(&ok);
+        if (!ok) {
+            qWarning() << "Value is not int";
+            return false;
+        }
+
+        const int rc = zmq_setsockopt(socket, static_cast<int>(key), static_cast<void *>(&int_val), sizeof(int));
+        if (rc != 0) {
+            zmqError(QString("Error setting option %1:").arg(key));
+            return false;
+        }
+
+        return true;
+    };
+
+    auto getIntValue = [this] (SockOption key) {
+        int option;
+        size_t size = sizeof(option);
+
+        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(&option), &size);
+        if (rc != 0) {
+            zmqError(QString("Error getting option %1:").arg(key));
+            return QVariant();
+        }
+
+        return QVariant(option);
+    };
+
+    auto setByteArrayValue = [this] (SockOption key, const QVariant &value) {
+        QByteArray ba_value = value.toByteArray();
+        if (ba_value.isNull()) {
+            qWarning() << "Value is not a QByteArray";
+            return false;
+        }
+
+        const int rc = zmq_setsockopt(socket, static_cast<int>(key), ba_value.data(), ba_value.size());
+        if (rc != 0) {
+            zmqError(QString("Error setting option %1:").arg(key));
+            return false;
+        }
+
+        return true;
+    };
+
+
+    auto getByteArrayValue = [this] (SockOption key, ulong size) {
+        QByteArray data(size, ' ');
+
+        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(data.data()), static_cast<size_t *>(&size));
+        if (rc != 0) {
+            zmqError(QString("Error getting option %1:").arg(key));
+            return QVariant();
+        }
+
+        data.resize(data.indexOf('\0'));
+
+        return QVariant(data);
+    };
+
+    options = QHash<SockOption, Option>({
+        {SndHwm, {std::bind(setIntValue, SndHwm, _1), std::bind(getIntValue, SndHwm)}},
+        {RcvHwm, {std::bind(setIntValue, RcvHwm, _1), std::bind(getIntValue, RcvHwm)}},
+        {Rate, {std::bind(setIntValue, Rate, _1), std::bind(getIntValue, Rate)}},
+        {RecoveryIvl, {std::bind(setIntValue, RecoveryIvl, _1), std::bind(getIntValue, RecoveryIvl)}},
+        {SndBuf, {std::bind(setIntValue, SndBuf, _1), std::bind(getIntValue, SndBuf)}},
+        {RcvBuf, {std::bind(setIntValue, RcvBuf, _1), std::bind(getIntValue, RcvBuf)}},
+        {Linger, {std::bind(setIntValue, Linger, _1), std::bind(getIntValue, Linger)}},
+        {ReconnectIvl, {std::bind(setIntValue, ReconnectIvl, _1), std::bind(getIntValue, ReconnectIvl)}},
+        {ReconnectIvlMax, {std::bind(setIntValue, ReconnectIvlMax, _1), std::bind(getIntValue, ReconnectIvlMax)}},
+        {Backlog, {std::bind(setIntValue, Backlog, _1), std::bind(getIntValue, Backlog)}},
+        {MulticastHops, {std::bind(setIntValue, MulticastHops, _1), std::bind(getIntValue, MulticastHops)}},
+        {SndTimeOut, {std::bind(setIntValue, SndTimeOut, _1), std::bind(getIntValue, SndTimeOut)}},
+        {IPV4Only, {std::bind(setIntValue, IPV4Only, _1), std::bind(getIntValue, IPV4Only)}},
+        {RouterMandatory, {std::bind(setIntValue, RouterMandatory, _1), std::bind(getIntValue, RouterMandatory)}},
+        {XPubVerbose, {std::bind(setIntValue, XPubVerbose, _1), std::bind(getIntValue, XPubVerbose)}},
+        {TcpKeepalive, {std::bind(setIntValue, TcpKeepalive, _1), std::bind(getIntValue, TcpKeepalive)}},
+        {TcpKeepaliveIdle, {std::bind(setIntValue, TcpKeepaliveIdle, _1), std::bind(getIntValue, TcpKeepaliveIdle)}},
+        {TcpKeepaliveCnt, {std::bind(setIntValue, TcpKeepaliveCnt, _1), std::bind(getIntValue, TcpKeepaliveCnt)}},
+        {TcpKeepaliveIntvl, {std::bind(setIntValue, TcpKeepaliveIntvl, _1), std::bind(getIntValue, TcpKeepaliveIntvl)}},
+#if ZMQ_VERSION_MAJOR > 3
+        {IPV6, {std::bind(setIntValue, IPV6, _1), std::bind(getIntValue, IPV6)}},
+        {Immediate, {std::bind(setIntValue, Immediate, _1), std::bind(getIntValue, Immediate)}},
+        {RouterRaw, {std::bind(setIntValue, RouterRaw, _1), std::bind(getIntValue, RouterRaw)}},
+        {ProbeRouter, {std::bind(setIntValue, ProbeRouter, _1), std::bind(getIntValue, ProbeRouter)}},
+        {ReqCorrelate, {std::bind(setIntValue, ReqCorrelate, _1), std::bind(getIntValue, ReqCorrelate)}},
+        {ReqRelaxed, {std::bind(setIntValue, ReqRelaxed, _1), std::bind(getIntValue, ReqRelaxed)}},
+        {CurveServer, {std::bind(setIntValue, CurveServer, _1), std::bind(getIntValue, CurveServer)}},
+        {CurvePublicKey, {std::bind(setByteArrayValue, CurvePublicKey, _1), std::bind(getByteArrayValue, CurvePublicKey, 41)}},
+        {CurveSecretKey, {std::bind(setByteArrayValue, CurveSecretKey, _1), std::bind(getByteArrayValue, CurveSecretKey, 41)}},
+        {CurveServerKey, {std::bind(setByteArrayValue, CurveServerKey, _1), std::bind(getByteArrayValue, CurveServerKey, 41)}},
+#endif
+    });
 }
