@@ -397,6 +397,7 @@ void ZMQSocket::setupOptionsTable()
         {CurvePublicKey, {std::bind(setByteArrayValue, CurvePublicKey, _1), std::bind(getByteArrayValue, CurvePublicKey, 41)}},
         {CurveSecretKey, {std::bind(setByteArrayValue, CurveSecretKey, _1), std::bind(getByteArrayValue, CurveSecretKey, 41)}},
         {CurveServerKey, {std::bind(setByteArrayValue, CurveServerKey, _1), std::bind(getByteArrayValue, CurveServerKey, 41)}},
+        {ZapDomain, {std::bind(setByteArrayValue, ZapDomain, _1), std::bind(getByteArrayValue, ZapDomain, 255)}},
 #endif
     });
 }

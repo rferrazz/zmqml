@@ -88,7 +88,8 @@ public:
         CurveServer = ZMQ_CURVE_SERVER,
         CurvePublicKey = ZMQ_CURVE_PUBLICKEY,
         CurveSecretKey = ZMQ_CURVE_SECRETKEY,
-        CurveServerKey = ZMQ_CURVE_SERVERKEY
+        CurveServerKey = ZMQ_CURVE_SERVERKEY,
+        ZapDomain = ZMQ_ZAP_DOMAIN,
 #endif
     };
 
