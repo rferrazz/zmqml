@@ -27,7 +27,7 @@ ZMQSocket::ZMQSocket(QObject *parent) :
     _type(Null),
     _identity(QUuid::createUuid().toByteArray()),
     socket(0)
-{}
+{setupOptionsTable();}
 
 ZMQSocket::~ZMQSocket()
 {
@@ -142,9 +142,6 @@ void ZMQSocket::setSubscriptions(const QStringList &sub)
 
 bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, const QVariant &value)
 {
-    if (!options.size())
-        setupOptionsTable();
-
     if (!socket) {
         qWarning() << "Error, socket not ready";
         return false;
@@ -158,11 +155,8 @@ bool ZMQSocket::setSockOption(ZMQSocket::SockOption option, const QVariant &valu
     return options[option].setter(value);
 }
 
-QVariant ZMQSocket::getSockOption(ZMQSocket::SockOption option)
+QVariant ZMQSocket::getSockOption(ZMQSocket::SockOption option) const
 {
-    if (!options.size())
-        setupOptionsTable();
-
     if (!options.contains(option)) {
         qWarning() << "ZMQSocket::getSockOption: unknown option" << option;
         return QVariant();
