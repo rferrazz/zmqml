@@ -352,10 +352,10 @@ void ZMQSocket::setupOptionsTable()
     };
 
 
-    auto getByteArrayValue = [this] (SockOption key, ulong size) {
+    auto getByteArrayValue = [this] (SockOption key, size_t size) {
         QByteArray data(size, ' ');
 
-        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(data.data()), static_cast<size_t *>(&size));
+        const int rc = zmq_getsockopt(socket, static_cast<int>(key), static_cast<void *>(data.data()), &size);
         if (rc != 0) {
             zmqError(QString("Error getting option %1:").arg(key));
             return QVariant();
