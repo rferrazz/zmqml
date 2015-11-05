@@ -162,7 +162,7 @@ QVariant ZMQSocket::getSockOption(ZMQSocket::SockOption option) const
         return QVariant();
     }
 
-    return options[option].getter();
+    return options.value(option).getter();
 }
 
 bool ZMQSocket::connectSocket()
