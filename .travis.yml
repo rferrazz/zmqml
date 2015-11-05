@@ -5,9 +5,9 @@ env:
  - ZMQ="https://github.com/zeromq/zeromq3-x.git"
  - ZMQ="https://github.com/zeromq/zeromq4-x.git" SODIUM="git://github.com/jedisct1/libsodium.git -b 0.4.5"
 before_install:
- - sudo add-apt-repository --yes ppa:beineri/opt-qt541
+ - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
  - sudo apt-get update -qq
- - sudo apt-get install -qq qt54base qt54declarative
+ - sudo apt-get install -qq qtdeclarative5-dev
  - sudo apt-get install uuid-dev
  - '[ -z "$SODIUM" ] || git clone --depth 1 $SODIUM ~/libsodium'
  - '[ -z "$SODIUM" ] || pushd ~/libsodium'
@@ -26,7 +26,6 @@ before_install:
  - popd
 
 script:
- - source /opt/qt54/bin/qt54-env.sh
- - qmake
+ - qmake -qt=qt5
  - make
  - make check
