@@ -1,7 +1,9 @@
 TEMPLATE = subdirs
-SUBDIRS = zmqml testsocket
+SUBDIRS += zmqml \
+           testsocket
 
 testsocket.file = tests/testsocket.pro
+
 
 examples {
     SUBDIRS += \

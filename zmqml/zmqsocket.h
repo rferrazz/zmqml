@@ -108,7 +108,7 @@ public:
     void setSubscriptions(const QStringList &sub);
 
     Q_INVOKABLE bool setSockOption(SockOption option, const QVariant &value);
-    Q_INVOKABLE QVariant getSockOption(SockOption option) const;
+    Q_INVOKABLE QVariant getSockOption(SockOption option);
 
     Q_INVOKABLE bool connectSocket();
     Q_INVOKABLE bool bindSocket();
