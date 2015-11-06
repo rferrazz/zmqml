@@ -10,6 +10,6 @@
 Dependencies
 -------------
 
- - Qt 5.x
+ - Qt >= 5.1
  - libzmq >= 3.0
 
