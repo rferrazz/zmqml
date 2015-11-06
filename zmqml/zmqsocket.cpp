@@ -360,7 +360,7 @@ void ZMQSocket::setupOptionsTable()
         return QVariant(data);
     };
 
-    options = QHash<SockOption, Option>({
+    options = QHash<SockOption, Option>({{
         {SndHwm, {std::bind(setIntValue, SndHwm, _1), std::bind(getIntValue, SndHwm)}},
         {RcvHwm, {std::bind(setIntValue, RcvHwm, _1), std::bind(getIntValue, RcvHwm)}},
         {Rate, {std::bind(setIntValue, Rate, _1), std::bind(getIntValue, Rate)}},
@@ -393,5 +393,5 @@ void ZMQSocket::setupOptionsTable()
         {CurveServerKey, {std::bind(setByteArrayValue, CurveServerKey, _1), std::bind(getByteArrayValue, CurveServerKey, 41)}},
         {ZapDomain, {std::bind(setByteArrayValue, ZapDomain, _1), std::bind(getByteArrayValue, ZapDomain, 255)}},
 #endif
-    });
+    }});
 }
